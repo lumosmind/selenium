@@ -1,65 +1,90 @@
 require('chromedriver'); // make driver reachable for nodeJS
 require('geckodriver'); // make driver reachable for nodeJS
 
-const { Builder, By, Key, util, until } = require("selenium-webdriver");
-const selenium = require('selenium-webdriver');
+const { Builder, By, Key, until } = require("selenium-webdriver");
+// const selenium = require('selenium-webdriver');
 
 async function example() {
+
   // const driver = await new Builder().forBrowser("chrome").build();
   const driver = await new Builder().forBrowser("firefox").build();
 
   await driver.get("https://www.kitapyurdu.com/");
+
   // click "önerim var" button
-  await driver
-    .findElement(By.css("#header-top > div > div.top-menu.fr > ul > li:nth-child(6) > div > ul > li > a"))
-    .click();
+  const onerimVarButton = await driver.wait(until.elementLocated(
+    By.css('#header-top > div > div.top-menu.fr > ul > li:nth-child(6) > div > ul > li > a')),
+    10000);
+
+  onerimVarButton.click();
+
 
   // wait until "name" input box will present
-  await driver.wait(function () {
-    return selenium.until.elementIsVisible(By.name("#header-feedback-form > div.padding > input[type=text]:nth-child(3)"));
-  }, 50000);
+  const nameTxt = await driver.wait(
+    until.elementLocated(By.css("#header-feedback-form > div.padding > input[type=text]:nth-child(3)"))
+    , 50000);
+  //type name in to nameTxt
+  nameTxt.sendKeys("Engin Özdemir", Key.RETURN);
 
-  //type name value
-  await driver
-    .findElement(By.css("#header-feedback-form > div.padding > input[type=text]:nth-child(3)"))
-    .sendKeys("Engin Özdemir", Key.RETURN);
+
 
   //type email value
-  await driver
-    .findElement(By.css("#header-feedback-form > div.padding > input[type=text]:nth-child(7)"))
-    .sendKeys("enginozdemir123456@gmail.com", Key.RETURN);
-
-  await driver
-    .findElement(By.css("#header-feedback-form > div:nth-child(2) > select:nth-child(11) > option:nth-child(2)"))
-    .click();
-
-  await driver
-    .findElement(By.css("#header-feedback-form > div:nth-child(2) > textarea:nth-child(16)"))
-    .sendKeys("Benim görüşlerim sizi hiç alakadar etmez.", Key.RETURN);
+  const emailTxt = await driver.wait(
+    until.elementLocated(By.css("#header-feedback-form > div.padding > input[type=text]:nth-child(7)"))
+    , 50000);
+  //type name into nameTxt
+  emailTxt.sendKeys("enginozdemir123456@gmail.com", Key.RETURN);
 
 
-  await driver
-    .findElement(By.css("html body.jBox-blockScroll-jBoxID1 div#jBoxID1.jBox-wrapper.jBox-Modal.jBox-Default div.jBox-container div.jBox-content div#feedback-popup div.no-padding form#header-feedback-form.feedback-form div.buttons div.right a.button"))
-    .click();
+  // chose "Öneri" option from "Konu" select element
+  const oneriOption = await driver.wait(
+    until.elementLocated(By.css("#header-feedback-form > div:nth-child(2) > select:nth-child(11) > option:nth-child(2)"))
+    , 50000);
+  //type name in to nameTxt
+  oneriOption.click();
 
-  console.log(Date.now());
-
-  const el = await driver.wait(function () {
-    return selenium.until.elementIsVisible(By.xpath('/html/body/div[1]/div[6]/div/div/div/img'));
-  }, 50000);
-  console.log(Date.now());
-  console.log(el);
-  console.log(el.fn);
-  console.log(Date.now());
+  // type opinion into "Görüşünüz" gorusunuzText
+  const gorusunuzText = await driver.wait(
+    until.elementLocated(By.css("#header-feedback-form > div:nth-child(2) > textarea:nth-child(16)"))
+    , 50000);
+  //type name into nameTxt
+  gorusunuzText.sendKeys("Benim görüşlerim sizi hiç alakadar etmez.", Key.RETURN);
 
 
+  // click "Gönder" button
+  const gonderButton = await driver.wait(
+    until.elementLocated(By.css(".right a.button"))
+    , 50000);
+  //type name in to nameTxt
+  gonderButton.click();
 
-  await driver
-    .findElement(By.xpath('/html/body/div[1]/div[6]/div/div/div/img'))
-    .click();
 
-  console.log('xxx:', Date.now());
+  //get success message
+  const successMessage = await driver.wait(
+    until.elementLocated(By.css(".success"))
+    , 50000);
+  //get success message content
+  const successMessageContent = await successMessage.getAttribute('textContent');
+  console.log(`successMessageContent : ${successMessageContent}`);
+  if (successMessageContent === "Düşüncelerinizi bizimle paylaştığınız için teşekkür ederiz.") {
+    console.log(`test: passed`);
+  } else {
+    console.log('test failed!!!!!!!!!!!');
+  }
 
 }
 
-example();
+
+// example();
+
+function benchmark() {
+  const t0 = Date.now();
+
+  example();
+
+  const t1 = Date.now();
+
+  console.log(`delta_t: ${t1 - t0} millisecond`);
+}
+
+benchmark();
