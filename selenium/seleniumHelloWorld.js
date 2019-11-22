@@ -9,7 +9,7 @@ async function example() {
   const driver = await new Builder().forBrowser("firefox").build();
 
   await driver.get("http://google.com");
-  await driver.findElement(By.name("q")).sendKeys("hello world", Key.RETURN);
+  await driver.findElement(By.name("q")).sendKeys("mustafa nasılsın?", Key.RETURN);
 
 }
 
